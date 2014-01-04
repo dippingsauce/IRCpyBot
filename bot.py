@@ -14,22 +14,34 @@ def parsemsg(msg):
         cmd = msgpart[1:].split(' ')
 
 def run(conn):
-    s = socket.socket() #creates a socket
-    s.connect(conn) #connects to the server
-    s.send('NICK ' + USER['nick']) #sends nick to the server
-    s.send('USER %s 0 0 :%s' % (USER['ident'], USER['realname'])) #identify with the server
+    irc = socket.socket() #creates a socket
+    irc.connect(conn) #connects to the server
+    
 
-    while 1:
-        line = s.recv(500) #recieves server messages
-        print line #server message output
-        if line.find('Welcome')!= -1: #need a better way of doing this
-            s.send('JOIN '+CHANNELDEF+'n') #Joins default channel
-        if line.find('PRIVMSG') != -1: #channel joined now parse messages
-            parsemsg(line)
-            line=line.rstrip() #removes trailing 'rn'
-            line=line.split()
-            if(line[0] == 'PING'): #if server pings then pong
-                s.send('PONG '+line[1]+'n')
+    while 1:                
+                line = irc.recv(1024) #recieves server messages
+                if line: # only print meaningful stuff
+                        print line #server message output
+                        if line[0].find('PING')!= -1:
+                                print 'Sending PONG'
+                                parsemsg(line)
+                                line=line.rstrip() #removes trailing 'rn'
+                                line=line.split()
+                                if(line[0] == 'PING'): #if server pings then pong
+                                        irc.send('PONG '+line[1]+'\r\n')        
+                        if line[0].find('Found')!= -1:
+                                print 'Sending IDENT'    
+                                irc.send('NICK ' + USER['nick'] + '\n') #sends nick to the server
+                                irc.send('USER %s 0 0 :%s\n' % (USER['ident'], USER['realname'])) #identify with the server
+                                irc.send('JOIN #empornium\n') #Joins default channel
+                        if line[0].find('ERROR')!= -1:
+                                print 'That\'s an error'
+                                irc.close()
+                                sys.exit() #Die on errors                        
+                        if line[0].find('PRIVMSG') != -1: #channel joined now parse messages
+                                parsemsg(line)
+                                line=line.rstrip() #removes trailing 'rn'
+                                line=line.split()
 
 if __name__ == "__main__":
     conn = (CONN['host'], CONN['port'])
