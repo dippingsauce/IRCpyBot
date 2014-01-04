@@ -82,11 +82,11 @@ class BotClass(object):
                     JoinThread.start()
                 elif line.find('PING :')!= -1:
                     print 'Sending PONG'
-                    self.self.parsemsg(line)
+                    self.parsemsg(line)
                     line=line.rstrip() #removes trailing 'rn'
                     line=line.split()
                     if(line[0] == 'PING'): #if server pings then pong
-                        sock.send('PONG '+line[1]+'\r\n')
+                        self.sock.send('PONG '+line[1]+'\r\n')
                 elif line.find('Nickname is already in use') != -1:
                     raise NicknameInUseError("The Nickname you chose is already in use.")
                 elif line.find('ERROR')!= -1:
