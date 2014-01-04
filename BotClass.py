@@ -47,7 +47,6 @@ class BotClass(object):
     def irc_print_commit(self):
         try:
             while True:
-                line = self.irc_print_queue.get()
                 if self.irc_flood_timeout_queue.empty() == False:
                     timeout=self.irc_flood_timeout_queue.queue[0]
                     if self.now_ms() >= timeout:
@@ -55,18 +54,20 @@ class BotClass(object):
                         #self.ui_console_queue.put("Timeout expired: " + str(int(timeout)))
                         continue
 
-                if self.irc_flood_timeout_queue.qsize() >= FLOOD['flood_messages']:
-                    timeout=((self.get_flood_timeout()-self.now_ms())/1000)
-                    if timeout < 0:
-                        self.ui_console_queue.put('Invalid timeout: ' + str(int(timeout)))
-                        break
-                    self.ui_console_queue.put("anti flood triggered")
-                    self.ui_console_queue.put("message queue size: " + str(self.irc_print_queue.qsize()))
-                    self.ui_console_queue.put("waiting for " + str(timeout) +"s")
-                    time.sleep(timeout)
+                if self.irc_print_queue.empty() == False:
+                    line = self.irc_print_queue.get()
+                    if self.irc_flood_timeout_queue.qsize() >= FLOOD['flood_messages']:
+                        timeout=((self.get_flood_timeout()-self.now_ms())/1000)
+                        if timeout < 0:
+                            self.ui_console_queue.put('Invalid timeout: ' + str(int(timeout)))
+                            break
+                        self.ui_console_queue.put("anti flood triggered")
+                        self.ui_console_queue.put("message queue size: " + str(self.irc_print_queue.qsize()))
+                        self.ui_console_queue.put("waiting for " + str(timeout) +"s")
+                        time.sleep(timeout)                    
 
-                self.sock.send("PRIVMSG " + CONN['channel'] + " :" + line + "\n")
-                self.irc_flood_timeout_queue.put(self.get_flood_timeout())
+                    self.sock.send("PRIVMSG " + CONN['channel'] + " :" + line + "\n")
+                    self.irc_flood_timeout_queue.put(self.get_flood_timeout())
         except KeyboardInterrupt:
             exit()
 

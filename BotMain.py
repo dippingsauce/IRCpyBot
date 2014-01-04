@@ -12,10 +12,16 @@ class Bot(BotClass):
            IRC_THREAD.daemon = True
            IRC_THREAD.start()
         except NicknameInUseError as e:
+            IRC_THREAD.stop()
+            IRC_THREAD.join()
+            del ui
             print e.value
+            exit()
         except KeyboardInterrupt:
             print "Closing"
-        ui = BotUI(super(Bot,self).ui_console_queue, super(Bot,self).irc_flood_timeout_queue)
+        ui = BotUI(super(Bot,self).ui_console_queue, \
+                   super(Bot,self).irc_flood_timeout_queue, \
+                   super(Bot,self).irc_print_queue)
 
     def connect(self):
         super(Bot,self).connect()
