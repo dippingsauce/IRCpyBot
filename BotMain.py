@@ -19,9 +19,10 @@ class Bot(BotClass):
             exit()
         except KeyboardInterrupt:
             print "Closing"
-        ui = BotUI(super(Bot,self).ui_console_queue, \
+        ui = BotUI(super(Bot,self).irc_print_queue, \
                    super(Bot,self).irc_flood_timeout_queue, \
-                   super(Bot,self).irc_print_queue)
+                   super(Bot,self).ui_console_queue, \
+                   super(Bot,self).ui_status_queue)
 
     def connect(self):
         super(Bot,self).connect()

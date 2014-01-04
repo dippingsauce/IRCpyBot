@@ -5,13 +5,13 @@ import time
 import datetime
 import sys
 
-from configs.config import FLOOD
+from configs.config import FLOOD, STAT
 
 class BotUI(object):
 
     loadDateTime = datetime.datetime.now()
 
-    def main(self,screen,ui_print_queue, irc_flood_timeout_queue, irc_print_queue):
+    def main(self,screen, irc_print_queue, irc_flood_timeout_queue, ui_print_queue, ui_status_queue):
         try:
             curses.start_color()
             curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLUE)
@@ -20,6 +20,7 @@ class BotUI(object):
             curses.init_pair(4, curses.COLOR_BLACK, curses.COLOR_YELLOW)
             curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_RED)
             curses.curs_set(0)
+            curses.nocbreak()
 
 
             screen.bkgd(curses.color_pair(1))
@@ -33,44 +34,44 @@ class BotUI(object):
             con_win = curses.newwin(win_size[0], console_width, 0, 0)
             stat_win = curses.newwin((win_size[0]/2), status_width, 0, status_position)
             
+            con_win.keypad(0)
+            con_win.notimeout(0)
             con_win.bkgd(curses.color_pair(2))
             con_win.move(1,1)
             con_line = 1
-            con_lines = con_line
-            con_max_line_len = (console_width-4)
+            con_max_line_len = (console_width-16)
             con_max_lines = (win_size[0]-2)
-
+        
+            PINGS=0
+            PING_TIME=datetime.datetime.now()
+            IRC_MESSAGES=0
+            
             while True:
                 con_win.box()
                 con_win.insstr(0, ((console_width/2)-6), "Bot Console")
                 if ui_print_queue.empty() == False:
                     line=ui_print_queue.get()
-                    line=line.strip()
-                    line=line.rstrip() #removes trailing 'rn'
-                    line=line+' '
-                    line_len=len(line)
-                    start=0
-                    end=0
-
-                    while (end < line_len):
-                        # print 'line start: '+str(start)
-                        # print 'line end: '+str(end)
-                        # print 'message length: '+str(line_len)
-                        end=line.rfind(' ',start,(end+con_max_line_len))
-                        if end <= start:
-                            end=line_len
-
-                        con_win.move(1,2)
-                        con_win.insdelln(-1)
-                        con_win.move(con_max_lines,1)
-                        con_win.clrtoeol()
-                        con_win.insstr(con_max_lines, 2, ('#'+line[start:end]+'\n'))
-                        curses.doupdate()
-                        con_win.refresh()
-                        start = end
+                    if line is None:
+                        break #bad queue item                    
+                    con_win.move(1,2)
+                    con_win.deleteln()
+                    con_win.move(con_max_lines,1)
+                    con_win.deleteln()
+                    con_win.insstr(con_max_lines, 2, (line))
+                    con_win.noutrefresh()
                 else:
                     time.sleep(0.04)
 
+                if ui_status_queue.empty() == False:
+                    status=ui_status_queue.get()
+                    if status[0] == STAT['ping']:
+                        PINGS=status[1]
+                    elif status[0] == STAT['ping_time']:
+                        PING_TIME=status[1]
+                    elif status[0] == STAT['irc_messages']:
+                        IRC_MESSAGES=status[1]
+                    
+                    
                 uptime = (datetime.datetime.now() - self.loadDateTime)
                 stat_win.move(1,2)
                 stat_win.clrtoeol()
@@ -94,8 +95,23 @@ class BotUI(object):
 
                 stat_win.move(4,2)
                 stat_win.clrtoeol()
-                stat_win.insstr(4,2,  "IRC Messages " + str(irc_print_queue.qsize()))
+                stat_win.insstr(4,2,  "IRC MSG Q    " + str(irc_print_queue.qsize()))
 
+                stat_win.move(5,2)
+                stat_win.clrtoeol()
+                stat_win.insstr(5,2,  "#IRC MSGS    " + str(IRC_MESSAGES))
+                
+                stat_win.move(6,2)
+                stat_win.clrtoeol()
+                stat_win.insstr(6,2,  "PINGs        " + str(PINGS))
+                
+                stat_win.move(7,2)
+                stat_win.clrtoeol()
+                if PINGS==0:
+                    stat_win.insstr(7,2,  "Last PING    Never")                    
+                else:
+                    stat_win.insstr(7,2,  "Last PING    " + PING_TIME.strftime('%d/%m/%Y %H:%M:%S'))
+                
                 stat_win.vline(1,14,'|',(((win_size[1]/2)+(win_size[1]/6))))
                 stat_win.box()
                 stat_win.insstr(0, ((status_width/2)-5), "Bot Stats")
@@ -109,9 +125,9 @@ class BotUI(object):
             exit()
 
 
-    def __init__(self,ui_print_queue,irc_flood_timeout_queue,irc_print_queue):
+    def __init__(self, irc_print_queue, irc_flood_timeout_queue, ui_print_queue, ui_status_queue):
         try:
-            curses.wrapper(self.main,ui_print_queue,irc_flood_timeout_queue,irc_print_queue)
+            curses.wrapper(self.main, irc_print_queue, irc_flood_timeout_queue, ui_print_queue, ui_status_queue)
         except KeyboardInterrupt:
             print "Closing"
             exit()

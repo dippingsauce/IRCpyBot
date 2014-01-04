@@ -42,3 +42,8 @@ USER = {'nick': config.getdef("irc", "nick", "DaxBot"),
 FLOOD = {'flood_time': config.getdef("irc", "", 15000),
 	    'flood_messages': config.getdef("irc", "", 9)
 	    }
+
+STAT = {'ping': int(0),
+        'ping_time': int(1),
+        'irc_messages': int(2)
+        }
