@@ -107,6 +107,22 @@ class BotClass(object):
                         self.ui_console_queue.put('That\'s a command')
                         if line[0].find('ValliusDax')!= -1:
                             self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
+                            self.irc_print("Yes, Master?")
                         else:
                             self.irc_print("You're not the Master!")
 
