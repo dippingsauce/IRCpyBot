@@ -113,6 +113,17 @@ class BotClass(object):
                     self.ui_console_queue.put("That's an error")
                     self.sock.close()
                     sys.exit() #Die on errors
+                elif line.find('KICK') != -1:
+                    line=line.rstrip() #removes trailing 'rn'
+                    line=line.split()
+                    msg = line[3] + " got kicked"
+                    self.ui_console_queue.put(msg)
+                    if line[3] == USER['nick']:
+                        self.ui_console_queue.put("Hey, That's me!")
+                        JoinThread = threading.Thread(target=self.join)
+                        JoinThread.daemon = True
+                        JoinThread.start()                        
+                    
                 elif line.find('PRIVMSG') != -1: #channel joined now parse messages
                     self.parsemsg(line)
                     line=line.rstrip() #removes trailing 'rn'
