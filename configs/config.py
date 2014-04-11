@@ -29,14 +29,15 @@ config.getdef = types.MethodType(getdef, config)
 
 CONN = {'host': config.getdef("irc", "host", "irc.empornium.me"),
         'port': int(config.getdef("irc", "port", 6667)),
-        'channel': '#%s' % config.getdef("irc", "channel", "DaxBotTesting")
+        'channel': '#%s' % config.getdef("irc", "channel", "Dax'sLab")
         }
 
 
-USER = {'nick': config.getdef("irc", "nick", "DaxBot"),
-        'ident': config.getdef("irc", "ident", "DaxBot"),
-        'realname': config.getdef("irc", "", "Noname"),
-        'owner': config.getdef("irc", "", "Noauthor")
+USER = {'nick': config.getdef("irc", "nick", "Deedee"),
+        'ident': config.getdef("irc", "ident", "Deedee"),
+        'realname': config.getdef("irc", "", "Deedee"),
+        'password': config.getdef("irc", "", "dancingdeedee"),
+        'owner': config.getdef("irc", "", "Dax")
         }
 
 FLOOD = {'flood_time': config.getdef("irc", "", 15000),
