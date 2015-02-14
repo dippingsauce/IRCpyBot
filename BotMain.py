@@ -7,11 +7,15 @@ class Bot(BotClass):
 
     def connect(self):
         super(Bot,self).connect()
+        
+    def changeNick(self,newNick):
+        super(Bot,self).ChangeNick(newNick)
 
 if __name__ == "__main__":
     b = Bot()
     try:
         b.connect()
-    except NicknameInUseError as e:
-        print e.value
-    
+    except NicknameInUseException:
+        b.changeNick('Mandark')
+    except TimeoutException:
+        print "This shit timed out"
